@@ -29,7 +29,7 @@ export default function Home() {
     <main>
       <Hero />
 
-      <ScrollMotionSection parallax={18} blur={6}>
+      <ScrollMotionSection parallax={14}>
         <TrustBar />
       </ScrollMotionSection>
 
@@ -37,23 +37,23 @@ export default function Home() {
         <Stats />
       </ScrollMotionSection>
 
-      <ScrollMotionSection parallax={26} delay={0.08}>
+      <ScrollMotionSection parallax={20} delay={0.08}>
         <Services />
       </ScrollMotionSection>
 
-      <ScrollMotionSection parallax={30} delay={0.12}>
+      <ScrollMotionSection parallax={22} delay={0.12}>
         <About />
       </ScrollMotionSection>
 
-      <ScrollMotionSection parallax={28} delay={0.12}>
+      <ScrollMotionSection parallax={20} delay={0.12}>
         <OmanIdentity />
       </ScrollMotionSection>
 
-      <ScrollMotionSection parallax={24} delay={0.14}>
+      <ScrollMotionSection parallax={18} delay={0.14}>
         <QHSE />
       </ScrollMotionSection>
 
-      <ScrollMotionSection parallax={20} delay={0.1} blur={4}>
+      <ScrollMotionSection parallax={14} delay={0.1}>
         <CTABanner />
       </ScrollMotionSection>
     </main>
