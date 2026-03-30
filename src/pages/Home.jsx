@@ -22,18 +22,40 @@ import About from '../components/sections/About';
 import OmanIdentity from '../components/sections/OmanIdentity';
 import QHSE from '../components/sections/QHSE';
 import CTABanner from '../components/sections/CTABanner';
+import ScrollMotionSection from '../components/motion/ScrollMotionSection';
 
 export default function Home() {
   return (
     <main>
       <Hero />
-      <TrustBar />
-      <Stats />
-      <Services />
-      <About />
-      <OmanIdentity />
-      <QHSE />
-      <CTABanner />
+
+      <ScrollMotionSection parallax={18} blur={6}>
+        <TrustBar />
+      </ScrollMotionSection>
+
+      <ScrollMotionSection parallax={22} delay={0.05}>
+        <Stats />
+      </ScrollMotionSection>
+
+      <ScrollMotionSection parallax={26} delay={0.08}>
+        <Services />
+      </ScrollMotionSection>
+
+      <ScrollMotionSection parallax={30} delay={0.12}>
+        <About />
+      </ScrollMotionSection>
+
+      <ScrollMotionSection parallax={28} delay={0.12}>
+        <OmanIdentity />
+      </ScrollMotionSection>
+
+      <ScrollMotionSection parallax={24} delay={0.14}>
+        <QHSE />
+      </ScrollMotionSection>
+
+      <ScrollMotionSection parallax={20} delay={0.1} blur={4}>
+        <CTABanner />
+      </ScrollMotionSection>
     </main>
   );
 }
