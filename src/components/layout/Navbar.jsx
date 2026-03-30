@@ -27,6 +27,7 @@ export default function Navbar() {
   const location = useLocation();
   const shouldReduce = useReducedMotion();
   const isHome = location.pathname === '/';
+  const solidOnHome = isHome && scrolled;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 48);
@@ -47,7 +48,9 @@ export default function Navbar() {
         className={`
           fixed top-0 left-0 right-0 z-50 transition-all duration-300
           ${solid
-            ? 'bg-ivory/96 backdrop-blur-md border-b border-stone/40 shadow-premium'
+            ? solidOnHome
+              ? 'bg-green-dark/95 border-b border-ivory/10 shadow-[0_8px_24px_rgba(0,0,0,0.28)]'
+              : 'bg-ivory/96 border-b border-stone/40 shadow-premium'
             : 'bg-transparent'}
         `}
       >
@@ -67,11 +70,11 @@ export default function Navbar() {
               </svg>
               <div className="flex flex-col leading-none">
                 <span className={`font-heading font-semibold text-sm tracking-tight transition-colors duration-200
-                  ${solid ? 'text-green-dark' : 'text-ivory'}`}>
+                  ${solid && !solidOnHome ? 'text-green-dark' : 'text-ivory'}`}>
                   Al Baraka
                 </span>
                 <span className={`text-xs font-body transition-colors duration-200
-                  ${solid ? 'text-charcoal-muted' : 'text-ivory/50'}`}>
+                  ${solid && !solidOnHome ? 'text-charcoal-muted' : 'text-ivory/70'}`}>
                   Oilfield Services
                 </span>
               </div>
@@ -88,8 +91,8 @@ export default function Navbar() {
                     relative pb-0.5
                     after:absolute after:bottom-0 after:left-0 after:h-px after:transition-all after:duration-200
                     ${location.pathname === link.href
-                      ? `after:w-full ${solid ? 'after:bg-green text-green' : 'after:bg-ivory text-ivory'}`
-                      : `after:w-0 hover:after:w-full ${solid ? 'text-charcoal-light hover:text-green after:bg-green' : 'text-ivory/75 hover:text-ivory after:bg-ivory'}`
+                      ? `after:w-full ${solid && !solidOnHome ? 'after:bg-green text-green' : 'after:bg-ivory text-ivory'}`
+                      : `after:w-0 hover:after:w-full ${solid && !solidOnHome ? 'text-charcoal-light hover:text-green after:bg-green' : 'text-ivory/80 hover:text-ivory after:bg-ivory'}`
                     }
                   `}
                 >
@@ -106,7 +109,9 @@ export default function Navbar() {
                   hidden lg:inline-flex px-5 py-2 text-sm font-heading font-semibold rounded-sm
                   transition-all duration-200 cursor-pointer
                   ${solid
-                    ? 'bg-green text-ivory hover:bg-green-light'
+                    ? solidOnHome
+                      ? 'bg-ivory/12 border border-ivory/20 text-ivory hover:bg-ivory/18'
+                      : 'bg-green text-ivory hover:bg-green-light'
                     : 'bg-ivory/10 border border-ivory/25 text-ivory hover:bg-ivory/18'}
                 `}
               >
@@ -115,7 +120,7 @@ export default function Navbar() {
 
               <button
                 onClick={() => setOpen(!open)}
-                className={`lg:hidden p-2 rounded-sm transition-colors ${solid ? 'text-charcoal' : 'text-ivory'}`}
+                className={`lg:hidden p-2 rounded-sm transition-colors ${solid && !solidOnHome ? 'text-charcoal' : 'text-ivory'}`}
                 aria-label="Toggle navigation"
                 aria-expanded={open}
               >

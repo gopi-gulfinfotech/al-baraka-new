@@ -101,6 +101,7 @@ export default function About() {
             className="relative"
           >
             <div className="bg-green rounded-2xl p-9 lg:p-10 relative overflow-hidden shadow-premium-lg">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-dark/35 via-transparent to-green-dark/20 pointer-events-none" />
               {/* Single subtle warmth orb */}
               <div
                 className="absolute -top-8 -right-8 w-36 h-36 rounded-full pointer-events-none opacity-15"
@@ -108,7 +109,7 @@ export default function About() {
               />
 
               <div className="relative">
-                <div className="label-section mb-7 text-gold/50 [&::before]:bg-gold/50">
+                <div className="label-section mb-7 text-gold/80 [&::before]:bg-gold/70">
                   Our Heritage
                 </div>
 
@@ -131,14 +132,14 @@ export default function About() {
                       style={{ marginBottom: i < milestones.length - 1 ? 0 : 0 }}
                     >
                       {/* Year */}
-                      <span className="font-heading font-semibold text-sm text-gold tabular-nums w-9 flex-shrink-0 pt-0.5">
+                      <span className="font-heading font-semibold text-sm text-gold/95 tabular-nums w-9 flex-shrink-0 pt-0.5">
                         {item.year}
                       </span>
 
                       {/* Animated dot + connecting line */}
                       <div className="flex flex-col items-center flex-shrink-0 pt-1.5">
                         <motion.div
-                          className="w-1.5 h-1.5 rounded-full bg-gold/60 flex-shrink-0"
+                          className="w-1.5 h-1.5 rounded-full bg-gold/80 flex-shrink-0"
                           variants={{
                             hidden:   { scale: 0, opacity: 0 },
                             visible:  { scale: 1, opacity: 1, transition: { duration: 0.25, delay: shouldReduce ? 0 : 0.1 + i * 0.1 } },
@@ -146,7 +147,7 @@ export default function About() {
                         />
                         {i < milestones.length - 1 && (
                           <motion.div
-                            className="w-px bg-gold/15 mt-1 min-h-[1.75rem]"
+                            className="w-px bg-gold/35 mt-1 min-h-[1.75rem]"
                             variants={{
                               hidden:   { scaleY: 0, originY: 0 },
                               visible:  {
@@ -160,7 +161,7 @@ export default function About() {
                       </div>
 
                       {/* Milestone text */}
-                      <span className="font-body text-sm text-ivory/62 leading-relaxed pb-5">
+                      <span className="font-body text-sm text-ivory/90 leading-relaxed pb-5">
                         {item.text}
                       </span>
                     </motion.div>
