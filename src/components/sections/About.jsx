@@ -4,12 +4,12 @@ import { ArrowRight, CheckCircle } from 'lucide-react';
 import AmbientBackground from '../ui/AmbientBackground';
 
 /*
-  Design decisions:
-  - Scroll-Triggered Storytelling (toolkit): left = identity narrative, right = visual proof
-  - Swiss Modernism: mathematical grid, clear hierarchy
-  - CLAUDE.md: large spacing, sand warm bg, no border overuse
-  - Typography: H2 heading (Lexend, -0.02em), body Source Sans 3
-  - Heritage card: dark green, NO heavy gradients (CLAUDE.md rule)
+  About section — identity narrative + animated heritage timeline
+  Motion enhancements:
+  - Timeline connecting line draws in (scaleY: 0 → 1) per milestone
+  - Each milestone staggered with dot pulse entrance
+  - Floating stat badge with subtle continuous float
+  - Pillar checklist staggered x-slide
 */
 
 const pillars = [
@@ -60,7 +60,7 @@ export default function About() {
               consistent delivery in the southern concession areas where the work is hardest.
             </p>
 
-            {/* Pillar checklist — clear, uncluttered */}
+            {/* Pillar checklist — staggered x-slide */}
             <motion.ul
               initial="hidden"
               whileInView="visible"
@@ -92,7 +92,7 @@ export default function About() {
             </Link>
           </motion.div>
 
-          {/* Right — Heritage card */}
+          {/* Right — Heritage card with animated timeline */}
           <motion.div
             initial={{ opacity: 0, x: shouldReduce ? 0 : 24 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -101,7 +101,7 @@ export default function About() {
             className="relative"
           >
             <div className="bg-green rounded-2xl p-9 lg:p-10 relative overflow-hidden shadow-premium-lg">
-              {/* Single subtle warmth orb — NOT a heavy gradient */}
+              {/* Single subtle warmth orb */}
               <div
                 className="absolute -top-8 -right-8 w-36 h-36 rounded-full pointer-events-none opacity-15"
                 style={{ background: 'radial-gradient(circle, #B8932A, transparent)' }}
@@ -112,38 +112,64 @@ export default function About() {
                   Our Heritage
                 </div>
 
-                <div className="space-y-5">
+                {/* Animated timeline */}
+                <motion.div
+                  className="space-y-0"
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                  variants={{ hidden: {}, visible: { transition: { staggerChildren: shouldReduce ? 0 : 0.1 } } }}
+                >
                   {milestones.map((item, i) => (
                     <motion.div
                       key={i}
-                      initial={{ opacity: 0 }}
-                      whileInView={{ opacity: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.3, delay: shouldReduce ? 0 : 0.15 + i * 0.07 }}
+                      variants={{
+                        hidden:   { opacity: 0 },
+                        visible:  { opacity: 1, transition: { duration: 0.3, delay: shouldReduce ? 0 : i * 0.05 } },
+                      }}
                       className="flex items-start gap-5"
+                      style={{ marginBottom: i < milestones.length - 1 ? 0 : 0 }}
                     >
                       {/* Year */}
                       <span className="font-heading font-semibold text-sm text-gold tabular-nums w-9 flex-shrink-0 pt-0.5">
                         {item.year}
                       </span>
-                      {/* Divider */}
+
+                      {/* Animated dot + connecting line */}
                       <div className="flex flex-col items-center flex-shrink-0 pt-1.5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-gold/40 flex-shrink-0" />
+                        <motion.div
+                          className="w-1.5 h-1.5 rounded-full bg-gold/60 flex-shrink-0"
+                          variants={{
+                            hidden:   { scale: 0, opacity: 0 },
+                            visible:  { scale: 1, opacity: 1, transition: { duration: 0.25, delay: shouldReduce ? 0 : 0.1 + i * 0.1 } },
+                          }}
+                        />
                         {i < milestones.length - 1 && (
-                          <div className="w-px flex-1 bg-gold/12 mt-1 min-h-6" />
+                          <motion.div
+                            className="w-px bg-gold/15 mt-1 min-h-[1.75rem]"
+                            variants={{
+                              hidden:   { scaleY: 0, originY: 0 },
+                              visible:  {
+                                scaleY: 1,
+                                transition: { duration: 0.35, delay: shouldReduce ? 0 : 0.2 + i * 0.1, ease: 'easeOut' },
+                              },
+                            }}
+                            style={{ transformOrigin: 'top' }}
+                          />
                         )}
                       </div>
-                      {/* Text */}
-                      <span className="font-body text-sm text-ivory/62 leading-relaxed">
+
+                      {/* Milestone text */}
+                      <span className="font-body text-sm text-ivory/62 leading-relaxed pb-5">
                         {item.text}
                       </span>
                     </motion.div>
                   ))}
-                </div>
+                </motion.div>
               </div>
             </div>
 
-            {/* Floating stat badge — subtle motion only */}
+            {/* Floating stat badge */}
             <motion.div
               animate={shouldReduce ? {} : { y: [0, -5, 0] }}
               transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}

@@ -3,18 +3,18 @@ import { useEffect, useRef } from 'react';
 import AmbientBackground from '../ui/AmbientBackground';
 
 /*
-  Design decisions:
-  - Sits between TrustBar (light) and Services (light) — acts as a dark green accent break
-  - Swiss Modernism: clean dividers, mathematical spacing, tabular-nums
-  - Toolkit: metric pulse (stat reveal) from Trust & Authority pattern
-  - CLAUDE.md: avoid heavy gradients → single radial only, restrained
+  Stats section — animated counters + progress bars
+  Motion enhancements:
+  - CountUp: number animates from 0 to target on scroll entry
+  - Progress bar: fills to a % width on scroll entry (visual reinforcement)
+  - Staggered entrance per stat cell
 */
 
 const stats = [
-  { value: 2,  suffix: 'M+', label: 'Man-Hours',     sub: 'LTI-free · All operations' },
-  { value: 99, suffix: '%',  label: 'Safety Record', sub: 'Zero-LTI commitment' },
-  { value: 13, suffix: '+',  label: 'Years Active',  sub: 'Since 2011, Oman' },
-  { value: 6,  suffix: '',   label: 'Service Lines', sub: 'Fully integrated' },
+  { value: 2,  suffix: 'M+', label: 'Man-Hours',     sub: 'LTI-free · All operations', progress: 100 },
+  { value: 99, suffix: '%',  label: 'Safety Record', sub: 'Zero-LTI commitment',        progress: 99  },
+  { value: 13, suffix: '+',  label: 'Years Active',  sub: 'Since 2011, Oman',           progress: 72  },
+  { value: 6,  suffix: '',   label: 'Service Lines', sub: 'Fully integrated',           progress: 60  },
 ];
 
 function CountUp({ target, suffix }) {
@@ -30,7 +30,7 @@ function CountUp({ target, suffix }) {
       return;
     }
     const controls = animate(count, target, {
-      duration: 1.5,
+      duration: 1.6,
       ease: 'easeOut',
       onUpdate: (v) => {
         if (ref.current) ref.current.textContent = Math.round(v).toLocaleString() + suffix;
@@ -43,12 +43,16 @@ function CountUp({ target, suffix }) {
 }
 
 export default function Stats() {
+  const shouldReduce = useReducedMotion();
+
   return (
     <section className="bg-green py-12 lg:py-14 relative overflow-hidden">
       <AmbientBackground variant="dark" dots blobs={false} />
+
       {/* Hairline borders */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
       <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gold/15 to-transparent" />
+
       {/* Single warm radial */}
       <div
         className="absolute inset-0 pointer-events-none opacity-[0.05]"
@@ -60,15 +64,24 @@ export default function Stats() {
           {stats.map((stat, i) => (
             <motion.div
               key={stat.label}
-              initial={{ opacity: 0, y: 14 }}
+              initial={{ opacity: 0, y: shouldReduce ? 0 : 14 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-40px' }}
-              transition={{ duration: 0.45, delay: i * 0.08, ease: 'easeOut' }}
+              transition={{ duration: 0.45, delay: shouldReduce ? 0 : i * 0.08, ease: 'easeOut' }}
               className={`
-                text-center py-7 px-5
+                relative text-center py-7 px-5 overflow-hidden
                 ${i < stats.length - 1 ? 'border-r border-ivory/10' : ''}
               `}
             >
+              {/* Animated progress bar — fills horizontally at bottom */}
+              <motion.div
+                className="absolute bottom-0 left-0 h-[2px] bg-gold/25"
+                initial={{ width: '0%' }}
+                whileInView={{ width: `${stat.progress}%` }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 1.4, delay: shouldReduce ? 0 : 0.3 + i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+              />
+
               <div className="font-heading font-semibold text-3xl lg:text-4xl text-gold mb-1 tabular-nums">
                 <CountUp target={stat.value} suffix={stat.suffix} />
               </div>

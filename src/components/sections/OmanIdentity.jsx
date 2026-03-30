@@ -61,9 +61,16 @@ export default function OmanIdentity() {
               <span className="italic">Drives Us.</span>
             </h2>
 
-            {/* Pull quote — editorial pattern */}
+            {/* Pull quote — editorial pattern, animated gold bar */}
             <blockquote className="relative pl-6 mb-10">
-              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-gold via-gold/50 to-transparent rounded-full" />
+              <motion.div
+                className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-gold via-gold/50 to-transparent rounded-full"
+                initial={{ scaleY: 0 }}
+                whileInView={{ scaleY: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7, delay: shouldReduce ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
+                style={{ transformOrigin: 'top' }}
+              />
               <p
                 className="font-body text-charcoal"
                 style={{ fontSize: '1.0625rem', lineHeight: '1.74' }}

@@ -1,27 +1,29 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 
 /*
-  Premium hero — split-screen editorial layout (toolkit: Editorial Grid)
-  Left panel (58%): headline, sub-copy, CTAs — deep green
-  Right panel (42%): topographic field SVG + floating credential card — darker green accent
-  Aurora UI ambient blobs in left panel only
-  Word-level stagger on headline — prefers-reduced-motion respected
-  Mobile: stacked, right panel collapses to stat strip
+  Premium hero — split-screen editorial layout
+  Motion enhancements:
+  - Scroll-parallax on topographic SVG (slower scroll = depth illusion)
+  - Scroll-parallax on credential card (lifts away on scroll)
+  - Floating gold particle dots (CSS keyframe, 8 particles)
+  - Scan line effect (premium field-monitor aesthetic)
+  - Word-level stagger on headline
+  - All motion gated by prefers-reduced-motion
 */
 
 const trustSignals = [
-  { label: 'PDO Approved', },
+  { label: 'PDO Approved' },
   { label: 'Est. 2011' },
   { label: 'MEM Registered' },
 ];
 
 const stats = [
-  { value: '13+',  label: 'Years Active',       sub: 'Since 2011' },
-  { value: '70%+', label: 'Omanisation',          sub: 'Omani Workforce' },
-  { value: '6',    label: 'Service Lines',       sub: 'Integrated' },
-  { value: '99%',  label: 'Safety Record',       sub: 'LTI-Free' },
+  { value: '13+',  label: 'Years Active',   sub: 'Since 2011' },
+  { value: '70%+', label: 'Omanisation',    sub: 'Omani Workforce' },
+  { value: '6',    label: 'Service Lines',  sub: 'Integrated' },
+  { value: '99%',  label: 'Safety Record',  sub: 'LTI-Free' },
 ];
 
 const credentialItems = [
@@ -30,14 +32,32 @@ const credentialItems = [
   { label: 'Southern Concession',     value: 'Block 6 Specialist' },
 ];
 
+/* Particle positions and animation config — left panel only */
+const particles = [
+  { size: 3,   left: '12%',  top: '28%', anim: 'particleFloatA', dur: '8.5s',  delay: '0s' },
+  { size: 2,   left: '24%',  top: '58%', anim: 'particleFloatB', dur: '11s',   delay: '1.2s' },
+  { size: 2.5, left: '40%',  top: '35%', anim: 'particleFloatC', dur: '9.8s',  delay: '2.4s' },
+  { size: 1.5, left: '55%',  top: '70%', anim: 'particleFloatD', dur: '13s',   delay: '0.6s' },
+  { size: 2,   left: '8%',   top: '72%', anim: 'particleFloatA', dur: '10.5s', delay: '3.1s' },
+  { size: 3,   left: '47%',  top: '18%', anim: 'particleFloatC', dur: '7.9s',  delay: '1.8s' },
+  { size: 1.5, left: '32%',  top: '82%', anim: 'particleFloatB', dur: '12.2s', delay: '4s' },
+  { size: 2.5, left: '18%',  top: '45%', anim: 'particleFloatD', dur: '9.2s',  delay: '2.8s' },
+];
+
 export default function Hero() {
   const shouldReduce = useReducedMotion();
   const ease = [0.22, 1, 0.36, 1];
 
+  /* Scroll-parallax values */
+  const { scrollY } = useScroll();
+  const topoY    = useTransform(scrollY, [0, 700], [0, shouldReduce ? 0 : -70]);
+  const cardY    = useTransform(scrollY, [0, 700], [0, shouldReduce ? 0 : -40]);
+  const bgScale  = useTransform(scrollY, [0, 700], [1, shouldReduce ? 1 : 1.06]);
+
   return (
     <section className="relative min-h-screen flex flex-col overflow-hidden" style={{ background: '#0D1F15' }}>
 
-      {/* ─── Ambient blobs (left panel) ─────────────────────────────────── */}
+      {/* ─── Ambient blobs ─────────────────────────────────────────────────── */}
       <div
         className="ambient-blob ambient-blob-primary pointer-events-none"
         style={{
@@ -57,10 +77,35 @@ export default function Hero() {
         }}
       />
 
-      {/* ─── Grain texture ──────────────────────────────────────────────── */}
+      {/* ─── Floating particle dots ────────────────────────────────────────── */}
+      {!shouldReduce && (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 1 }}>
+          {particles.map((p, i) => (
+            <div
+              key={i}
+              className="particle-dot"
+              style={{
+                width: p.size,
+                height: p.size,
+                left: p.left,
+                top: p.top,
+                background: 'rgba(184,147,42,0.5)',
+                boxShadow: `0 0 ${p.size * 3}px rgba(184,147,42,0.3)`,
+                animation: `${p.anim} ${p.dur} ease-in-out infinite`,
+                animationDelay: p.delay,
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* ─── Scan line ─────────────────────────────────────────────────────── */}
+      {!shouldReduce && <div className="scan-line" style={{ zIndex: 1 }} />}
+
+      {/* ─── Grain texture ─────────────────────────────────────────────────── */}
       <div className="absolute inset-0 noise-grain pointer-events-none" style={{ opacity: 0.04 }} />
 
-      {/* ─── Grid overlay ───────────────────────────────────────────────── */}
+      {/* ─── Grid overlay ──────────────────────────────────────────────────── */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -74,14 +119,14 @@ export default function Hero() {
       {/* Left red accent */}
       <div className="absolute left-0 inset-y-0 w-[3px] bg-gradient-to-b from-transparent via-red/50 to-transparent z-10" />
 
-      {/* ─── Main split grid ────────────────────────────────────────────── */}
-      <div className="relative flex-1 grid grid-cols-1 lg:grid-cols-[1fr_420px] xl:grid-cols-[1fr_480px]">
+      {/* ─── Main split grid ───────────────────────────────────────────────── */}
+      <div className="relative flex-1 grid grid-cols-1 lg:grid-cols-[1fr_420px] xl:grid-cols-[1fr_480px]" style={{ zIndex: 2 }}>
 
-        {/* ── LEFT PANEL ─ Headline + CTAs ────────────────────────────── */}
+        {/* ── LEFT PANEL ─ Headline + CTAs ─────────────────────────────── */}
         <div className="flex flex-col justify-center container-main lg:max-w-none lg:px-10 xl:px-16 pt-36 pb-10 lg:pt-32 lg:pb-10">
           <div className="max-w-[640px]">
 
-            {/* Trust chips — clean dot-separated */}
+            {/* Trust chips */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -103,7 +148,6 @@ export default function Hero() {
 
             {/* Headline — word-level stagger */}
             <h1 className="mb-8" style={{ letterSpacing: '-0.025em' }}>
-              {/* Line 1: "Oman's Premier" */}
               <span className="block overflow-hidden" style={{ lineHeight: '1.04' }}>
                 {["Oman's", 'Premier'].map((word, i) => (
                   <motion.span
@@ -118,7 +162,6 @@ export default function Hero() {
                   </motion.span>
                 ))}
               </span>
-              {/* Line 2: "Oilfield Contractor." — DM Serif Display italic, gold */}
               <span className="block overflow-hidden" style={{ lineHeight: '1.04' }}>
                 {['Oilfield', 'Contractor.'].map((word, i) => (
                   <motion.span
@@ -135,7 +178,7 @@ export default function Hero() {
               </span>
             </h1>
 
-            {/* Gold hairline */}
+            {/* Gold hairline — animated scaleX */}
             <motion.div
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
@@ -186,7 +229,7 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* ── RIGHT PANEL ─ Visual credentials ────────────────────────── */}
+        {/* ── RIGHT PANEL ─ Visual credentials ──────────────────────────── */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -197,8 +240,13 @@ export default function Hero() {
           {/* Vertical separator */}
           <div className="absolute left-0 inset-y-0 w-px bg-gradient-to-b from-transparent via-ivory/8 to-transparent" />
 
-          {/* Topographic field map SVG — abstract contour lines */}
-          <TopoMapSVG />
+          {/* Topographic field map SVG — parallax wrapper */}
+          <motion.div
+            className="absolute inset-0"
+            style={{ y: topoY, scale: bgScale }}
+          >
+            <TopoMapSVG />
+          </motion.div>
 
           {/* Gold ambient orb */}
           <div
@@ -206,7 +254,7 @@ export default function Hero() {
             style={{ background: 'radial-gradient(circle, rgba(184,147,42,0.07) 0%, transparent 65%)' }}
           />
 
-          {/* Credential card */}
+          {/* Credential card — subtle parallax */}
           <div className="relative z-10 px-10 py-12">
             <motion.div
               initial={{ opacity: 0, y: shouldReduce ? 0 : 24 }}
@@ -214,13 +262,22 @@ export default function Hero() {
               transition={{ duration: 0.65, delay: shouldReduce ? 0 : 0.55, ease }}
               className="rounded-2xl overflow-hidden relative"
               style={{
+                y: cardY,
                 background: 'rgba(255,255,255,0.04)',
                 border: '1px solid rgba(255,255,255,0.07)',
                 backdropFilter: 'blur(12px)',
               }}
             >
-              {/* Gold top accent line */}
-              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
+              {/* Gold top accent line — animated */}
+              <motion.div
+                className="absolute top-0 left-0 right-0 h-px"
+                style={{
+                  background: 'linear-gradient(90deg, transparent, rgba(184,147,42,0.5), transparent)',
+                }}
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 1.0, delay: shouldReduce ? 0 : 0.7 }}
+              />
 
               {/* Card header */}
               <div className="px-6 pt-5 pb-4 border-b border-ivory/6">
@@ -233,7 +290,9 @@ export default function Hero() {
                     <span className="text-[10px] font-body text-ivory/28">Active</span>
                   </span>
                 </div>
-                <div className="font-body text-xs text-ivory/32 mt-0.5">Sultanate of Oman · Southern Concession Areas</div>
+                <div className="font-body text-xs text-ivory/32 mt-0.5">
+                  Sultanate of Oman · Southern Concession Areas
+                </div>
               </div>
 
               {/* Credential rows */}
@@ -247,7 +306,9 @@ export default function Hero() {
                     className="flex items-center justify-between px-6 py-3.5"
                   >
                     <span className="font-body text-xs text-ivory/45">{item.label}</span>
-                    <span className="font-heading font-semibold text-xs text-gold/80 tabular-nums">{item.value}</span>
+                    <span className="font-heading font-semibold text-xs text-gold/80 tabular-nums">
+                      {item.value}
+                    </span>
                   </motion.div>
                 ))}
               </div>
@@ -257,12 +318,16 @@ export default function Hero() {
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="font-heading font-semibold text-xl text-ivory tabular-nums">99%</div>
-                    <div className="font-body text-[10px] text-ivory/35 mt-0.5">Safety record · All operations</div>
+                    <div className="font-body text-[10px] text-ivory/35 mt-0.5">
+                      Safety record · All operations
+                    </div>
                   </div>
                   <div className="w-px h-8 bg-ivory/8" />
                   <div className="text-right">
                     <div className="font-heading font-semibold text-xl text-gold tabular-nums">2M+</div>
-                    <div className="font-body text-[10px] text-ivory/35 mt-0.5">LTI-free man-hours logged</div>
+                    <div className="font-body text-[10px] text-ivory/35 mt-0.5">
+                      LTI-free man-hours logged
+                    </div>
                   </div>
                 </div>
               </div>
@@ -283,7 +348,7 @@ export default function Hero() {
             </motion.div>
           </div>
 
-          {/* Scroll hint — right panel bottom */}
+          {/* Scroll hint */}
           {!shouldReduce && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -303,7 +368,7 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      {/* ─── Stats bar ──────────────────────────────────────────────────── */}
+      {/* ─── Stats bar ─────────────────────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -335,10 +400,8 @@ export default function Hero() {
   );
 }
 
-/* ─── Topographic field map SVG ───────────────────────────────────────────
-   Abstract concentric contour lines — evokes geological survey maps,
-   ties into oil-field identity without being literal or illustrative.
-   Low opacity ivory lines on dark green — purely decorative.            */
+/* ─── Topographic field map SVG ─────────────────────────────────────────────
+   Abstract concentric contour lines — geological survey aesthetic.          */
 function TopoMapSVG() {
   return (
     <svg
@@ -348,44 +411,32 @@ function TopoMapSVG() {
       preserveAspectRatio="xMidYMid slice"
       aria-hidden="true"
     >
-      {/* Outer contours — large sweeping curves */}
-      <ellipse cx="280" cy="320" rx="310" ry="210" stroke="rgba(250,250,249,0.04)" strokeWidth="1" />
-      <ellipse cx="280" cy="320" rx="255" ry="168" stroke="rgba(250,250,249,0.05)" strokeWidth="1" />
+      <ellipse cx="280" cy="320" rx="310" ry="210" stroke="rgba(250,250,249,0.04)"  strokeWidth="1" />
+      <ellipse cx="280" cy="320" rx="255" ry="168" stroke="rgba(250,250,249,0.05)"  strokeWidth="1" />
       <ellipse cx="280" cy="320" rx="200" ry="130" stroke="rgba(250,250,249,0.055)" strokeWidth="1" />
-      <ellipse cx="280" cy="320" rx="148" ry="96"  stroke="rgba(250,250,249,0.06)" strokeWidth="1" />
+      <ellipse cx="280" cy="320" rx="148" ry="96"  stroke="rgba(250,250,249,0.06)"  strokeWidth="1" />
       <ellipse cx="280" cy="320" rx="100" ry="65"  stroke="rgba(250,250,249,0.065)" strokeWidth="1" />
-      <ellipse cx="280" cy="320" rx="58"  ry="38"  stroke="rgba(250,250,249,0.06)" strokeWidth="1" />
-      <ellipse cx="280" cy="320" rx="26"  ry="18"  stroke="rgba(184,147,42,0.12)" strokeWidth="1" />
+      <ellipse cx="280" cy="320" rx="58"  ry="38"  stroke="rgba(250,250,249,0.06)"  strokeWidth="1" />
+      <ellipse cx="280" cy="320" rx="26"  ry="18"  stroke="rgba(184,147,42,0.12)"   strokeWidth="1" />
 
-      {/* Secondary formation — offset ellipses for geological realism */}
-      <ellipse cx="160" cy="520" rx="220" ry="140" stroke="rgba(250,250,249,0.03)" strokeWidth="1" />
+      <ellipse cx="160" cy="520" rx="220" ry="140" stroke="rgba(250,250,249,0.03)"  strokeWidth="1" />
       <ellipse cx="160" cy="520" rx="165" ry="100" stroke="rgba(250,250,249,0.035)" strokeWidth="1" />
-      <ellipse cx="160" cy="520" rx="112" ry="68"  stroke="rgba(250,250,249,0.04)" strokeWidth="1" />
-      <ellipse cx="160" cy="520" rx="68"  ry="42"  stroke="rgba(250,250,249,0.04)" strokeWidth="1" />
+      <ellipse cx="160" cy="520" rx="112" ry="68"  stroke="rgba(250,250,249,0.04)"  strokeWidth="1" />
+      <ellipse cx="160" cy="520" rx="68"  ry="42"  stroke="rgba(250,250,249,0.04)"  strokeWidth="1" />
 
-      {/* Fault lines — thin diagonals */}
       <line x1="0"   y1="180" x2="480" y2="460" stroke="rgba(250,250,249,0.025)" strokeWidth="0.75" strokeDasharray="4 8" />
       <line x1="0"   y1="360" x2="480" y2="640" stroke="rgba(250,250,249,0.02)"  strokeWidth="0.75" strokeDasharray="3 9" />
       <line x1="120" y1="0"   x2="400" y2="720" stroke="rgba(250,250,249,0.018)" strokeWidth="0.75" strokeDasharray="4 10" />
 
-      {/* Well location markers */}
-      <circle cx="280" cy="320" r="3" fill="rgba(184,147,42,0.35)" />
-      <circle cx="280" cy="320" r="6" stroke="rgba(184,147,42,0.15)" strokeWidth="1" fill="none" />
+      <circle cx="280" cy="320" r="3"  fill="rgba(184,147,42,0.35)" />
+      <circle cx="280" cy="320" r="6"  stroke="rgba(184,147,42,0.15)" strokeWidth="1" fill="none" />
       <circle cx="280" cy="320" r="10" stroke="rgba(184,147,42,0.07)" strokeWidth="1" fill="none" />
-
       <circle cx="160" cy="520" r="2.5" fill="rgba(184,147,42,0.25)" />
       <circle cx="160" cy="520" r="5"   stroke="rgba(184,147,42,0.10)" strokeWidth="1" fill="none" />
 
-      {/* Depth labels — very subtle text */}
-      <text x="300" y="246" fontSize="8" fill="rgba(250,250,249,0.12)" fontFamily="monospace" letterSpacing="1">
-        -1200m
-      </text>
-      <text x="316" y="278" fontSize="7" fill="rgba(250,250,249,0.08)" fontFamily="monospace" letterSpacing="1">
-        -1800m
-      </text>
-      <text x="326" y="308" fontSize="6" fill="rgba(250,250,249,0.06)" fontFamily="monospace" letterSpacing="1">
-        -2400m
-      </text>
+      <text x="300" y="246" fontSize="8" fill="rgba(250,250,249,0.12)" fontFamily="monospace" letterSpacing="1">-1200m</text>
+      <text x="316" y="278" fontSize="7" fill="rgba(250,250,249,0.08)" fontFamily="monospace" letterSpacing="1">-1800m</text>
+      <text x="326" y="308" fontSize="6" fill="rgba(250,250,249,0.06)" fontFamily="monospace" letterSpacing="1">-2400m</text>
     </svg>
   );
 }

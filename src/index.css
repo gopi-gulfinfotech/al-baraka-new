@@ -57,10 +57,47 @@
   50%      { transform: translateY(-8px); }
 }
 
+/* ─── Infinite horizontal marquee ─────────────────────────────────────────── */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ─── Scan line — premium tech / field-monitor feel ────────────────────────── */
+@keyframes scanLine {
+  0%   { top: -2px; opacity: 0; }
+  4%   { opacity: 0.055; }
+  96%  { opacity: 0.055; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* ─── Particle float — for dark premium sections ───────────────────────────── */
+@keyframes particleFloatA {
+  0%, 100% { transform: translate(0px,   0px);   opacity: 0.30; }
+  50%       { transform: translate(6px, -22px);   opacity: 0.60; }
+}
+@keyframes particleFloatB {
+  0%, 100% { transform: translate(0px,    0px);   opacity: 0.20; }
+  35%       { transform: translate(-10px, -30px); opacity: 0.50; }
+  70%       { transform: translate(5px,  -14px);  opacity: 0.35; }
+}
+@keyframes particleFloatC {
+  0%, 100% { transform: translate(0px,    0px);   opacity: 0.38; }
+  45%       { transform: translate(12px, -18px);  opacity: 0.68; }
+  80%       { transform: translate(-5px, -28px);  opacity: 0.25; }
+}
+@keyframes particleFloatD {
+  0%, 100% { transform: translate(0px,   0px);   opacity: 0.18; }
+  60%       { transform: translate(-8px, -24px);  opacity: 0.45; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ambient-blob,
   .section-blob-primary,
-  .section-blob-secondary { animation-play-state: paused !important; }
+  .section-blob-secondary,
+  .marquee-track,
+  .scan-line,
+  .particle-dot { animation-play-state: paused !important; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
@@ -220,6 +257,40 @@
   .nav-link {
     @apply font-heading font-medium text-sm cursor-pointer
            transition-colors duration-150 relative pb-0.5;
+  }
+
+  /* ─── Infinite marquee track ─────────────────────────────────────────── */
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+    animation: marquee 34s linear infinite;
+  }
+  .marquee-track:hover { animation-play-state: paused; }
+
+  /* ─── Scan line (hero) ────────────────────────────────────────────────── */
+  .scan-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(184,147,42,0.25) 25%,
+      rgba(184,147,42,0.55) 50%,
+      rgba(184,147,42,0.25) 75%,
+      transparent 100%
+    );
+    animation: scanLine 10s linear infinite;
+    pointer-events: none;
+  }
+
+  /* ─── Floating particle dot ──────────────────────────────────────────── */
+  .particle-dot {
+    position: absolute;
+    border-radius: 9999px;
+    pointer-events: none;
   }
 }
 

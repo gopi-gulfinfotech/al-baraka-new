@@ -1,21 +1,16 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { useRef } from 'react';
+import { motion, useReducedMotion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import AmbientBackground from '../ui/AmbientBackground';
 
 /*
-  Premium services — two-tier layout (toolkit: Enterprise Gateway + Bento Grid)
-
-  Tier 1: Cinematic featured card (Workover Rig Services)
-    - Full-width dark green banner with topographic SVG mesh background
-    - DM Serif Display italic title, inline credential chips, CTA arrow
-    - This is Al Baraka's headline capability — it gets the full spotlight
-
-  Tier 2: Swiss-numbered grid (5 remaining services)
-    - Clean white cards, Swiss-style 01–05 numbering, subtle top accent on hover
-    - 2+3 or 3+2 responsive grid
-    - Shadow-only, no borders (CLAUDE.md rule)
-    - Source Sans 3 body, Lexend headings
+  Services section — two-tier layout
+  Motion enhancements:
+  - TiltCard: subtle 3D perspective tilt on the 5 service cards (useMotionValue)
+  - Featured card: shimmer sweep on hover (CSS)
+  - Staggered entrance on the service grid
+  - All motion gated by useReducedMotion
 */
 
 const featured = {
@@ -78,6 +73,66 @@ const services = [
   },
 ];
 
+/* ─── 3D Tilt card wrapper ────────────────────────────────────────────────
+   Tracks mouse position relative to card bounds, maps to subtle rotateX/Y.
+   Springs back to neutral on mouse leave.                                   */
+function TiltCard({ children, className, style }) {
+  const shouldReduce = useReducedMotion();
+  const ref = useRef(null);
+
+  const rawX = useMotionValue(0);
+  const rawY = useMotionValue(0);
+
+  const springConfig = { stiffness: 300, damping: 30, mass: 0.5 };
+  const rotateX = useSpring(useTransform(rawY, [-0.5, 0.5], [4, -4]), springConfig);
+  const rotateY = useSpring(useTransform(rawX, [-0.5, 0.5], [-4, 4]), springConfig);
+  const glowX = useTransform(rawX, [-0.5, 0.5], ['0%', '100%']);
+  const glowY = useTransform(rawY, [-0.5, 0.5], ['0%', '100%']);
+  /* Glow computed unconditionally — hook rules */
+  const glowBg = useTransform(
+    [glowX, glowY],
+    ([x, y]) =>
+      `radial-gradient(circle at ${x} ${y}, rgba(27,58,45,0.06) 0%, transparent 65%)`
+  );
+
+  const handleMouseMove = (e) => {
+    if (shouldReduce || !ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    rawX.set((e.clientX - rect.left) / rect.width - 0.5);
+    rawY.set((e.clientY - rect.top) / rect.height - 0.5);
+  };
+
+  const handleMouseLeave = () => {
+    rawX.set(0);
+    rawY.set(0);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX: shouldReduce ? 0 : rotateX,
+        rotateY: shouldReduce ? 0 : rotateY,
+        transformStyle: 'preserve-3d',
+        transformPerspective: 800,
+        ...style,
+      }}
+      className={className}
+    >
+      {/* Inner glow follows mouse — very subtle */}
+      {!shouldReduce && (
+        <motion.div
+          className="absolute inset-0 rounded-2xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          style={{ background: glowBg }}
+        />
+      )}
+      {children}
+    </motion.div>
+  );
+}
+
 export default function Services() {
   const shouldReduce = useReducedMotion();
   const ease = [0.22, 1, 0.36, 1];
@@ -87,7 +142,7 @@ export default function Services() {
       <AmbientBackground variant="ivory" dots blobs />
       <div className="relative z-10 container-main">
 
-        {/* ─── Section header ──────────────────────────────────────────── */}
+        {/* ─── Section header ────────────────────────────────────────────── */}
         <motion.div
           initial={{ opacity: 0, y: shouldReduce ? 0 : 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -117,7 +172,7 @@ export default function Services() {
           </Link>
         </motion.div>
 
-        {/* ─── Tier 1: Cinematic featured card ─────────────────────────── */}
+        {/* ─── Tier 1: Cinematic featured card ───────────────────────────── */}
         <motion.div
           initial={{ opacity: 0, y: shouldReduce ? 0 : 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -135,7 +190,18 @@ export default function Services() {
             {/* Topographic mesh background */}
             <ServiceTopoSVG />
 
-            {/* Gold radial warmth — top right */}
+            {/* Shimmer sweep — slides across on hover */}
+            <div
+              className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              style={{
+                background:
+                  'linear-gradient(105deg, transparent 30%, rgba(184,147,42,0.04) 50%, transparent 70%)',
+                backgroundSize: '200% 100%',
+                animation: 'none',
+              }}
+            />
+
+            {/* Gold radial warmth */}
             <div
               className="absolute top-0 right-0 w-96 h-96 pointer-events-none"
               style={{ background: 'radial-gradient(circle at 85% 10%, rgba(184,147,42,0.10) 0%, transparent 55%)' }}
@@ -143,7 +209,6 @@ export default function Services() {
 
             {/* Content */}
             <div className="relative z-10 flex flex-col justify-between p-8 lg:p-10 flex-1">
-              {/* Top row */}
               <div className="flex items-start justify-between mb-8">
                 <div className="flex items-center gap-3">
                   <span
@@ -160,7 +225,6 @@ export default function Services() {
                 <WellIcon featured />
               </div>
 
-              {/* Title */}
               <div>
                 <h3
                   className="font-display italic text-ivory text-balance mb-3"
@@ -179,9 +243,7 @@ export default function Services() {
                 </p>
               </div>
 
-              {/* Bottom row */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-8 pt-7 border-t border-ivory/8">
-                {/* Chips */}
                 <div className="flex flex-wrap gap-2">
                   {featured.chips.map((chip) => (
                     <span
@@ -193,7 +255,6 @@ export default function Services() {
                     </span>
                   ))}
                 </div>
-                {/* CTA */}
                 <div className="flex items-center gap-2 text-sm font-heading font-semibold text-gold/70
                                 group-hover:text-gold transition-colors duration-200 flex-shrink-0">
                   View Full Capability
@@ -204,7 +265,7 @@ export default function Services() {
           </Link>
         </motion.div>
 
-        {/* ─── Tier 2: Swiss-numbered service grid ─────────────────────── */}
+        {/* ─── Tier 2: Swiss-numbered service grid with 3D tilt ─────────── */}
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -225,59 +286,61 @@ export default function Services() {
                   visible:  { opacity: 1, y: 0, transition: { duration: 0.44, ease: 'easeOut' } },
                 }}
               >
-                <Link
-                  to="/services"
-                  className="group relative flex flex-col h-full bg-white rounded-2xl p-7 cursor-pointer
-                             shadow-card hover:shadow-card-hover
-                             transition-all duration-200 hover:-translate-y-0.5 overflow-hidden"
-                  style={{ minHeight: '220px' }}
-                >
-                  {/* Hover top accent bar */}
-                  <div
-                    className="absolute top-0 left-0 right-0 h-[2px] bg-green
-                               scale-x-0 group-hover:scale-x-100
-                               transition-transform duration-300 origin-left rounded-t-2xl"
-                  />
-
-                  {/* Number + category */}
-                  <div className="flex items-center justify-between mb-6">
-                    <span
-                      className="font-heading font-semibold text-stone select-none tabular-nums"
-                      style={{ fontSize: '1.75rem', letterSpacing: '-0.04em', lineHeight: '1' }}
-                    >
-                      {service.number}
-                    </span>
-                    <div className="w-9 h-9 rounded-xl bg-green/6 flex items-center justify-center text-green
-                                    group-hover:bg-green group-hover:text-ivory transition-all duration-200">
-                      <Icon />
-                    </div>
-                  </div>
-
-                  {/* Category label */}
-                  <div className="text-[10px] font-heading font-semibold tracking-[0.12em] uppercase text-gold/65 mb-2">
-                    {service.category}
-                  </div>
-
-                  {/* Title */}
-                  <h3
-                    className="font-heading font-semibold text-charcoal flex-shrink-0 mb-3"
-                    style={{ fontSize: '1.05rem', letterSpacing: '-0.015em', lineHeight: '1.25' }}
+                <TiltCard className="group relative h-full" style={{ height: '100%' }}>
+                  <Link
+                    to="/services"
+                    className="group relative flex flex-col h-full bg-white rounded-2xl p-7 cursor-pointer
+                               shadow-card hover:shadow-card-hover
+                               transition-all duration-200 hover:-translate-y-0.5 overflow-hidden"
+                    style={{ minHeight: '220px' }}
                   >
-                    {service.title}
-                  </h3>
+                    {/* Hover top accent bar — animates across */}
+                    <div
+                      className="absolute top-0 left-0 right-0 h-[2px] bg-green
+                                 scale-x-0 group-hover:scale-x-100
+                                 transition-transform duration-300 origin-left rounded-t-2xl"
+                    />
 
-                  {/* Description */}
-                  <p className="font-body text-sm text-charcoal-light leading-relaxed flex-1" style={{ lineHeight: '1.65' }}>
-                    {service.description}
-                  </p>
+                    {/* Number + icon */}
+                    <div className="flex items-center justify-between mb-6">
+                      <span
+                        className="font-heading font-semibold text-stone select-none tabular-nums"
+                        style={{ fontSize: '1.75rem', letterSpacing: '-0.04em', lineHeight: '1' }}
+                      >
+                        {service.number}
+                      </span>
+                      <div className="w-9 h-9 rounded-xl bg-green/6 flex items-center justify-center text-green
+                                      group-hover:bg-green group-hover:text-ivory transition-all duration-200">
+                        <Icon />
+                      </div>
+                    </div>
 
-                  {/* Arrow */}
-                  <div className="mt-5 flex items-center gap-1.5 text-xs font-heading font-medium text-green/60
-                                  group-hover:text-green transition-colors duration-200">
-                    Learn more
-                    <ArrowRight size={12} className="transition-transform duration-200 group-hover:translate-x-1" />
-                  </div>
-                </Link>
+                    {/* Category label */}
+                    <div className="text-[10px] font-heading font-semibold tracking-[0.12em] uppercase text-gold/65 mb-2">
+                      {service.category}
+                    </div>
+
+                    {/* Title */}
+                    <h3
+                      className="font-heading font-semibold text-charcoal flex-shrink-0 mb-3"
+                      style={{ fontSize: '1.05rem', letterSpacing: '-0.015em', lineHeight: '1.25' }}
+                    >
+                      {service.title}
+                    </h3>
+
+                    {/* Description */}
+                    <p className="font-body text-sm text-charcoal-light leading-relaxed flex-1" style={{ lineHeight: '1.65' }}>
+                      {service.description}
+                    </p>
+
+                    {/* Arrow */}
+                    <div className="mt-5 flex items-center gap-1.5 text-xs font-heading font-medium text-green/60
+                                    group-hover:text-green transition-colors duration-200">
+                      Learn more
+                      <ArrowRight size={12} className="transition-transform duration-200 group-hover:translate-x-1" />
+                    </div>
+                  </Link>
+                </TiltCard>
               </motion.div>
             );
           })}
@@ -288,7 +351,7 @@ export default function Services() {
   );
 }
 
-/* ─── Background SVG — sparse topographic mesh for featured card ─────── */
+/* ─── Background SVG ────────────────────────────────────────────────────── */
 function ServiceTopoSVG() {
   return (
     <svg
@@ -298,32 +361,28 @@ function ServiceTopoSVG() {
       preserveAspectRatio="xMidYMid slice"
       aria-hidden="true"
     >
-      <ellipse cx="700" cy="150" rx="340" ry="220" stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
+      <ellipse cx="700" cy="150" rx="340" ry="220" stroke="rgba(255,255,255,0.04)"  strokeWidth="1" />
       <ellipse cx="700" cy="150" rx="270" ry="170" stroke="rgba(255,255,255,0.045)" strokeWidth="1" />
-      <ellipse cx="700" cy="150" rx="200" ry="125" stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+      <ellipse cx="700" cy="150" rx="200" ry="125" stroke="rgba(255,255,255,0.05)"  strokeWidth="1" />
       <ellipse cx="700" cy="150" rx="135" ry="85"  stroke="rgba(255,255,255,0.055)" strokeWidth="1" />
-      <ellipse cx="700" cy="150" rx="78"  ry="50"  stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
-      <ellipse cx="700" cy="150" rx="38"  ry="25"  stroke="rgba(184,147,42,0.14)" strokeWidth="1" />
+      <ellipse cx="700" cy="150" rx="78"  ry="50"  stroke="rgba(255,255,255,0.05)"  strokeWidth="1" />
+      <ellipse cx="700" cy="150" rx="38"  ry="25"  stroke="rgba(184,147,42,0.14)"   strokeWidth="1" />
       <circle  cx="700" cy="150" r="3.5"  fill="rgba(184,147,42,0.4)" />
       <circle  cx="700" cy="150" r="7"    stroke="rgba(184,147,42,0.15)" strokeWidth="1" fill="none" />
-
       <ellipse cx="200" cy="240" rx="200" ry="120" stroke="rgba(255,255,255,0.025)" strokeWidth="0.75" />
-      <ellipse cx="200" cy="240" rx="140" ry="80"  stroke="rgba(255,255,255,0.03)" strokeWidth="0.75" />
+      <ellipse cx="200" cy="240" rx="140" ry="80"  stroke="rgba(255,255,255,0.03)"  strokeWidth="0.75" />
       <circle  cx="200" cy="240" r="2.5"  fill="rgba(184,147,42,0.25)" />
-
-      <line x1="0"   y1="80"  x2="900" y2="220" stroke="rgba(255,255,255,0.02)" strokeWidth="0.6" strokeDasharray="5 10" />
-      <line x1="0"   y1="180" x2="900" y2="50"  stroke="rgba(255,255,255,0.015)" strokeWidth="0.6" strokeDasharray="4 12" />
+      <line x1="0" y1="80"  x2="900" y2="220" stroke="rgba(255,255,255,0.02)"  strokeWidth="0.6" strokeDasharray="5 10" />
+      <line x1="0" y1="180" x2="900" y2="50"  stroke="rgba(255,255,255,0.015)" strokeWidth="0.6" strokeDasharray="4 12" />
     </svg>
   );
 }
 
-/* ─── SVG icon components ─────────────────────────────────────────────── */
+/* ─── SVG icon components ───────────────────────────────────────────────── */
 function WellIcon({ featured }) {
   return (
-    <svg
-      viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"
-      className={featured ? 'w-6 h-6 text-gold/50' : 'w-5 h-5'}
-    >
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"
+      className={featured ? 'w-6 h-6 text-gold/50' : 'w-5 h-5'}>
       <line x1="10" y1="2" x2="10" y2="18" />
       <path d="M14 5H7a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6H5" />
     </svg>
