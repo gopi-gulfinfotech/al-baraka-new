@@ -8,16 +8,15 @@ const easeOutExpo = [0.16, 1, 0.3, 1];
  * Establishes a consistent "motion language" across pages:
  * - reveal timing and easing
  * - depth through parallax y-offset
- * - subtle opacity/scale interpolation for cinematic continuity
+ * - subtle opacity interpolation for continuity without reducing legibility
  */
 export default function ScrollMotionSection({
   children,
   className = '',
-  amount = 0.2,
-  offset = ['start 88%', 'end 20%'],
+  amount = 0.25,
+  offset = ['start 92%', 'end 12%'],
   delay = 0,
-  parallax = 26,
-  blur = 8,
+  parallax = 20,
   as: Component = 'div',
 }) {
   const sectionRef = useRef(null);
@@ -29,27 +28,22 @@ export default function ScrollMotionSection({
   });
 
   const smoothed = useSpring(scrollYProgress, {
-    stiffness: 90,
-    damping: 22,
-    mass: 0.3,
+    stiffness: 120,
+    damping: 26,
+    mass: 0.25,
   });
 
   const y = useTransform(smoothed, [0, 1], [shouldReduce ? 0 : parallax, 0]);
-  const opacity = useTransform(smoothed, [0, 0.35, 1], [0.65, 1, 1]);
-  const scale = useTransform(smoothed, [0, 1], [0.985, 1]);
-  const filter = useTransform(smoothed, [0, 1], [
-    shouldReduce ? 'blur(0px)' : `blur(${blur}px)`,
-    'blur(0px)',
-  ]);
+  const opacity = useTransform(smoothed, [0, 0.18, 1], [0.78, 1, 1]);
 
   return (
     <motion.div
       ref={sectionRef}
-      initial={shouldReduce ? false : { opacity: 0, y: 24 }}
+      initial={shouldReduce ? false : { opacity: 0, y: 18 }}
       whileInView={shouldReduce ? {} : { opacity: 1, y: 0 }}
       viewport={{ once: true, amount }}
-      transition={{ duration: shouldReduce ? 0 : 0.8, ease: easeOutExpo, delay }}
-      style={{ y, opacity, scale, filter }}
+      transition={{ duration: shouldReduce ? 0 : 0.72, ease: easeOutExpo, delay }}
+      style={{ y, opacity, willChange: 'transform, opacity' }}
       className={className}
     >
       <Component>{children}</Component>
