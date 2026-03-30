@@ -91,6 +91,21 @@
   60%       { transform: translate(-8px, -24px);  opacity: 0.45; }
 }
 
+@keyframes siteOrbA {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(4vw, -3vh, 0) scale(1.08); }
+  66% { transform: translate3d(-3vw, 2vh, 0) scale(1.03); }
+}
+@keyframes siteOrbB {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  40% { transform: translate3d(-4vw, 3vh, 0) scale(1.06); }
+  75% { transform: translate3d(2vw, -2vh, 0) scale(1.02); }
+}
+@keyframes siteOrbC {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(3vw, 2vh, 0) scale(1.05); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ambient-blob,
   .section-blob-primary,
@@ -98,6 +113,7 @@
   .marquee-track,
   .scan-line,
   .particle-dot { animation-play-state: paused !important; }
+  .site-bg-orb { animation-play-state: paused !important; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
@@ -291,6 +307,59 @@
     position: absolute;
     border-radius: 9999px;
     pointer-events: none;
+  }
+
+  /* ─── Global motion polish ─────────────────────────────────────────── */
+  .modern-shell {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .site-bg-orb {
+    position: fixed;
+    border-radius: 9999px;
+    pointer-events: none;
+    filter: blur(90px);
+    will-change: transform;
+    z-index: -1;
+  }
+
+  .site-bg-orb-a {
+    width: 42vw;
+    height: 42vw;
+    top: -16vh;
+    right: -12vw;
+    background: radial-gradient(circle, rgba(27, 58, 45, 0.07) 0%, transparent 68%);
+    animation: siteOrbA 26s ease-in-out infinite;
+  }
+
+  .site-bg-orb-b {
+    width: 36vw;
+    height: 36vw;
+    bottom: -18vh;
+    left: -10vw;
+    background: radial-gradient(circle, rgba(184, 147, 42, 0.07) 0%, transparent 65%);
+    animation: siteOrbB 31s ease-in-out infinite;
+  }
+
+  .site-bg-orb-c {
+    width: 24vw;
+    height: 24vw;
+    top: 38vh;
+    right: 8vw;
+    background: radial-gradient(circle, rgba(27, 58, 45, 0.05) 0%, transparent 68%);
+    animation: siteOrbC 28s ease-in-out infinite;
+  }
+
+  .scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    z-index: 60;
+    background: linear-gradient(90deg, rgba(184,147,42,0.7), rgba(27,58,45,0.82));
+    box-shadow: 0 0 18px rgba(184,147,42,0.24);
   }
 }
 
