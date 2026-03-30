@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(npm run:*)",
+      "Read(//c/Users/Admin/**)",
+      "Read(//c/Users/Admin/AppData/Roaming/Claude/**)",
+      "Bash(python3:*)",
+      "Bash(python skills/ui-ux-pro-max/scripts/search.py \"premium oil gas energy corporate hero section executive\" --design-system -p \"Al Baraka Oilfield Services\")",
+      "Bash(python .claude/skills/ui-ux-pro-max/scripts/search.py \"premium oil gas energy corporate hero executive Oman\" --design-system -p \"Al Baraka\")",
+      "Bash(python .claude/skills/ui-ux-pro-max/scripts/search.py \"luxury corporate hero split layout editorial typography\" --domain style -n 3)",
+      "Bash(python .claude/skills/ui-ux-pro-max/scripts/search.py \"services cards enterprise grid layout\" --domain landing -n 3)",
+      "Bash(python .claude/skills/ui-ux-pro-max/scripts/search.py \"split screen hero panel layout animation reveal\" --domain ux -n 2)",
+      "Bash(python .claude/skills/ui-ux-pro-max/scripts/search.py \"ambient background animation performance noise texture premium\" --domain ux -n 3)"
+    ]
+  }
+}

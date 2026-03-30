@@ -1,13 +1,248 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Design system — CLAUDE.md + ui-ux-pro-max toolkit:
+  - Typography: 3-tier (Display → Heading → Body)
+  - Colors: lighter soothing tones, warm ivory base, Oman green/gold
+  - Spacing: 8px base unit, generous section breathing room
+  - Style: Vercel cleanliness, minimal borders, refined contrast
+  - Ambient animation: Aurora UI pattern — 12–18s keyframes, very low opacity
+*/
+
+/* ─── Ambient animation system ───────────────────────────────────────────────
+   Three tiers of animation speed:
+   1. Hero blobs (ambientDrift/Alt)  — 18–22s, more active,  hero only
+   2. Section blobs (sectionDrift/Alt) — 22–28s, very gentle, light sections
+   3. All paused via prefers-reduced-motion                               ──── */
+
+/* Hero tier — 18–22s */
+@keyframes ambientDrift {
+  0%,  100% { transform: translate(0%,   0%)   scale(1.00); }
+  25%        { transform: translate(2.5%, -1.5%) scale(1.04); }
+  50%        { transform: translate(-1.5%, 2%)   scale(1.02); }
+  75%        { transform: translate(1.5%, 1.5%)  scale(1.05); }
+}
+@keyframes ambientDriftAlt {
+  0%,  100% { transform: translate(0%,  0%)    scale(1.00); }
+  30%        { transform: translate(-2%, 1.5%)  scale(1.03); }
+  60%        { transform: translate(2%,  -2%)   scale(1.05); }
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* Section tier — 22–28s, barely perceptible movement */
+@keyframes sectionDrift {
+  0%,  100% { transform: translate(0%,   0%)    scale(1.00); opacity: 1; }
+  35%        { transform: translate(1.5%, -1%)   scale(1.05); opacity: 0.75; }
+  70%        { transform: translate(-1%,  1.5%)  scale(1.02); opacity: 0.90; }
+}
+@keyframes sectionDriftAlt {
+  0%,  100% { transform: translate(0%,  0%)    scale(1.00); opacity: 1; }
+  40%        { transform: translate(-1.5%, 1%)  scale(1.04); opacity: 0.70; }
+  75%        { transform: translate(1%,  -1.5%) scale(1.03); opacity: 0.85; }
+}
+
+@keyframes revealLine {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes subtleFloat {
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-8px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-blob,
+  .section-blob-primary,
+  .section-blob-secondary { animation-play-state: paused !important; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@layer base {
+  html { scroll-behavior: smooth; font-size: 16px; }
+
+  body {
+    @apply font-body text-charcoal bg-ivory antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  p, li, blockquote { line-height: 1.65; }
+}
+
+@layer components {
+  /* ─── Layout ──────────────────────────────────────────────────────────── */
+  .container-main { @apply max-w-7xl mx-auto px-6 lg:px-10; }
+
+  /* Generous section padding (CLAUDE.md: large spacing) */
+  .section-pad    { @apply py-24 lg:py-32; }
+  .section-pad-sm { @apply py-14 lg:py-20; }
+
+  /* ─── Ambient blobs ───────────────────────────────────────────────────── */
+  .ambient-blob {
+    position: absolute;
+    border-radius: 9999px;
+    pointer-events: none;
+    will-change: transform;
+    filter: blur(80px);
+  }
+  .ambient-blob-primary {
+    animation: ambientDrift 18s ease-in-out infinite;
+  }
+  .ambient-blob-secondary {
+    animation: ambientDriftAlt 22s ease-in-out infinite;
+  }
+  /* Section-tier blobs — slower, used in light content sections */
+  .section-blob-primary {
+    animation: sectionDrift 24s ease-in-out infinite;
+  }
+  .section-blob-secondary {
+    animation: sectionDriftAlt 30s ease-in-out infinite;
+  }
+
+  /* ─── Noise grain texture ─────────────────────────────────────────────── */
+  /* SVG feTurbulence grain — premium paper/film quality, zero animation cost */
+  .noise-grain {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 180px 180px;
+  }
+
+  /* ─── Dot grid ────────────────────────────────────────────────────────── */
+  /* Sparse 28px dot matrix — engineering/technical precision feel */
+  .dot-grid-light {
+    background-image: radial-gradient(circle, rgba(27,58,45,0.055) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  .dot-grid-dark {
+    background-image: radial-gradient(circle, rgba(250,250,249,0.07) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  /* ─── Typography scale ────────────────────────────────────────────────── */
+  /* Display: DM Serif Display — hero/editorial accent only */
+  .type-display {
+    @apply font-display;
+    font-size: clamp(3.25rem, 6.5vw, 5.75rem);
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+  }
+
+  /* H1 — page-level, tight tracking */
+  .type-h1 {
+    @apply font-heading font-semibold;
+    font-size: clamp(2.5rem, 5vw, 4.25rem);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+  }
+
+  /* H2 — section titles */
+  .type-h2 {
+    @apply font-heading font-semibold;
+    font-size: clamp(1.85rem, 3.2vw, 2.75rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  /* Section label — Swiss Modernism: wide tracking, gold, small */
+  .label-section {
+    @apply inline-flex items-center gap-2.5
+           font-heading font-semibold text-xs tracking-[0.12em] uppercase text-gold;
+  }
+  .label-section::before {
+    content: '';
+    @apply block w-5 h-px bg-gold flex-shrink-0;
+  }
+  .label-section-light {
+    @apply label-section text-gold/70;
+  }
+  .label-section-light::before { @apply bg-gold/70; }
+
+  /* ─── Buttons ─────────────────────────────────────────────────────────── */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-7 py-3.5
+           bg-green text-ivory font-heading font-semibold text-sm rounded-sm
+           cursor-pointer transition-all duration-200
+           hover:bg-green-light hover:shadow-premium;
+  }
+  .btn-outline {
+    @apply inline-flex items-center gap-2 px-7 py-3.5
+           border border-green text-green font-heading font-semibold text-sm rounded-sm
+           cursor-pointer transition-all duration-200
+           hover:bg-green hover:text-ivory;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 px-7 py-3.5
+           border border-ivory/25 text-ivory/80 font-heading font-medium text-sm rounded-sm
+           cursor-pointer transition-all duration-200
+           hover:border-ivory/45 hover:text-ivory hover:bg-ivory/6;
+  }
+  .btn-ivory {
+    @apply inline-flex items-center gap-2 px-7 py-3.5
+           bg-ivory text-green-dark font-heading font-semibold text-sm rounded-sm
+           cursor-pointer transition-all duration-200
+           hover:bg-gold hover:text-ivory shadow-premium-lg;
+  }
+
+  /* ─── Cards ───────────────────────────────────────────────────────────── */
+  .card {
+    @apply bg-white rounded-2xl p-8 shadow-card
+           transition-all duration-200 cursor-default;
+  }
+  .card-interactive {
+    @apply card hover:shadow-card-hover hover:-translate-y-0.5 cursor-pointer;
+  }
+
+  /* ─── Dividers ────────────────────────────────────────────────────────── */
+  .divider-gold {
+    @apply h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent;
+  }
+  .divider-stone { @apply h-px bg-stone/50; }
+
+  /* ─── Nav ─────────────────────────────────────────────────────────────── */
+  .nav-link {
+    @apply font-heading font-medium text-sm cursor-pointer
+           transition-colors duration-150 relative pb-0.5;
+  }
+}
+
+@layer utilities {
+  /* Hero background */
+  .bg-hero {
+    background: linear-gradient(158deg, #0D1F15 0%, #1B3A2D 55%, #142B22 100%);
+  }
+  /* Warm sand gradient */
+  .bg-sand-warm {
+    background: linear-gradient(180deg, #FAFAF9 0%, #F7F3EB 100%);
+  }
+  /* Tight heading tracking */
+  .tracking-tight-display { letter-spacing: -0.03em; }
+  /* Text balance */
+  .text-balance { text-wrap: balance; }
+  /* Float animation */
+  .animate-float-subtle {
+    animation: subtleFloat 5s ease-in-out infinite;
+  }
+  /* Reveal line (decorative) */
+  .animate-reveal-line {
+    animation: revealLine 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    transform-origin: left;
+  }
 }
