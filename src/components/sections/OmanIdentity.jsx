@@ -140,14 +140,14 @@ export default function OmanIdentity() {
                 hidden:   { opacity: 0, y: shouldReduce ? 0 : 14 },
                 visible:  { opacity: 1, y: 0, transition: { duration: 0.5, delay: 0.42 } },
               }}
-              className="pt-8 mt-2 border-t border-stone/50 grid grid-cols-3 gap-4"
+              className="pt-8 mt-2 border-t border-stone/50 grid grid-cols-1 sm:grid-cols-3 gap-4"
             >
               {[
                 { value: '70%+', label: 'Omani Workforce' },
                 { value: '2011', label: 'Founded in Oman' },
                 { value: 'PDO',  label: 'Approved Since 2013' },
               ].map((item) => (
-                <div key={item.label}>
+                <div key={item.label} className="rounded-lg border border-stone/40 bg-white/60 px-4 py-3 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
                   <div className="font-heading font-semibold text-green text-lg tabular-nums">{item.value}</div>
                   <div className="font-body text-xs text-charcoal-muted mt-0.5" style={{ lineHeight: '1.4' }}>{item.label}</div>
                 </div>
