@@ -361,6 +361,31 @@
     background: linear-gradient(90deg, rgba(184,147,42,0.7), rgba(27,58,45,0.82));
     box-shadow: 0 0 18px rgba(184,147,42,0.24);
   }
+
+  /* ─── Hero mobile readability + rig alignment ───────────────────────── */
+  .hero-body-copy {
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.52);
+  }
+
+  @media (max-width: 640px) {
+    .hero-rig-wrapper {
+      right: -20% !important;
+      padding-bottom: 14% !important;
+      padding-right: 0 !important;
+    }
+
+    .hero-rig-svg {
+      width: 118% !important;
+      height: 78% !important;
+      max-width: none !important;
+      opacity: 0.9;
+    }
+
+    .hero-body-copy {
+      color: rgba(250, 250, 249, 0.9) !important;
+      text-shadow: 0 2px 16px rgba(0, 0, 0, 0.6);
+    }
+  }
 }
 
 @layer utilities {
