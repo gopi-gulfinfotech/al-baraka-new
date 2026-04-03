@@ -134,7 +134,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: shouldReduce ? 0 : 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: shouldReduce ? 0 : 0.55, ease }}
-              className="font-body text-ivory/52 max-w-[520px] mb-11"
+              className="font-body text-ivory/80 max-w-[520px] mb-11 hero-body-copy"
               style={{ fontSize: '1.0625rem', lineHeight: '1.74' }}
             >
               Precision oilfield services powered by local expertise, proven safety,
@@ -321,6 +321,7 @@ function RigScene({ reduced }) {
     <div className="absolute inset-0 z-[1] pointer-events-none" aria-hidden="true">
       {/* Wrapper positions rig right-of-center */}
       <div
+        className="hero-rig-wrapper"
         style={{
           position: 'absolute',
           right: '-2%',
@@ -335,6 +336,7 @@ function RigScene({ reduced }) {
         }}
       >
         <motion.svg
+          className="hero-rig-svg"
           viewBox="0 0 820 668"
           preserveAspectRatio="xMaxYMax meet"
           style={{ width: '70%', maxWidth: 820, height: '100%', overflow: 'visible' }}
